@@ -1,0 +1,42 @@
+:root {
+  --foreground-rgb: 51, 51, 51;
+  --background-rgb: 240, 240, 240;
+  --primary-color: #0070f3;
+  --border-color: #d1d1d1;
+  --card-background: #ffffff;
+  --card-hover-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  --category-border: #d1d1d1;
+  --category-active-bg: #ffffff;
+  --category-bg: #e5e5e5;
+  --category-hover-bg: #dadada;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
