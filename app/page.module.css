@@ -1,50 +1,237 @@
-.main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  min-height: 100vh;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* page.module.css */
 
-.title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.photoGrid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
-  width: 100%;
-}
-
-@media (min-width: 640px) {
-  .photoGrid {
-    grid-template-columns: repeat(2, 1fr);
+/* --------------------------------------------------
+   1) Блок заголовка «АВАНПОСТ» на чёрном фоне + бургер-иконка
+   -------------------------------------------------- */
+   .headerTitle {
+    width: 100%;
+    background-color: #000000; /* Чёрный фон */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 1rem;       /* Отступы вокруг текста */
+    box-sizing: border-box;
+    position: relative;       /* Чтобы позиционировать выпадающее меню */
   }
-}
-
-@media (min-width: 1024px) {
-  .photoGrid {
-    grid-template-columns: repeat(3, 1fr);
+  
+  .headerTitle h1 {
+    margin: 0;
+    color: #ffffff;            /* Белый текст */
+    font-family: 'Roboto', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
   }
-}
-
-.loading {
-  text-align: center;
-  width: 100%;
-  padding: 2rem;
-  grid-column: 1 / -1;
-}
-
-.noPhotos {
-  text-align: center;
-  width: 100%;
-  padding: 2rem;
-  grid-column: 1 / -1;
-}
-
+  
+  @media (max-width: 640px) {
+    .headerTitle h1 {
+      font-size: 2.25rem;
+    }
+  }
+  
+  /* Иконка бургер-меню (появляется только на мобилке) */
+  .burger {
+    display: none;           /* скрываем на десктопе */
+    font-size: 1.75rem;
+    color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.5rem;         /* «зона клика» вокруг значка */
+    line-height: 1;
+  }
+  
+  @media (max-width: 640px) {
+    .burger {
+      display: block;        /* показываем только на мобилке */
+    }
+  }
+  
+  /* --------------------------------------------------
+     2) Статичный фильтр (десктоп): отображается ≥ 640 px
+     -------------------------------------------------- */
+  .desktopFilter {
+    display: none;           /* по умолчанию скрыт */
+  }
+  
+  @media (min-width: 640px) {
+    .desktopFilter {
+      display: flex;         /* появляется на десктопе */
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+  }
+  
+  /* --------------------------------------------------
+     3) Выпадающее меню (мобильный фильтр): отображается ≤ 640 px
+     -------------------------------------------------- */
+  .menuDropdown {
+    display: none;           /* не показываем по умолчанию */
+  }
+  
+  @media (max-width: 640px) {
+    .menuDropdown {
+      display: block;        /* появляется на мобилке */
+      position: absolute;
+      top: 100%;             /* сразу под .headerTitle */
+      right: 1rem;           /* отступ аналогично padding у headerTitle */
+      margin-top: 0.5rem;    /* чуть отступ сверху */
+      background-color: #000000;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      padding: 1rem;
+      min-width: 180px;
+      box-sizing: border-box;
+    }
+  }
+  
+  /* Внутри выпадающего меню — вертикальный список категорий */
+  .menuDropdown .filterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 60vh;         /* если много категорий, включается прокрутка */
+    overflow-y: auto;
+  }
+  
+  /* Стили скроллбара (Chrome, Edge, Safari) внутри меню */
+  .menuDropdown .filterContainer::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .menuDropdown .filterContainer::-webkit-scrollbar-track {
+    background: #222222;
+    border-radius: 3px;
+  }
+  
+  .menuDropdown .filterContainer::-webkit-scrollbar-thumb {
+    background-color: #555555;
+    border-radius: 3px;
+  }
+  
+  /* --------------------------------------------------
+     4) Общие стили для кнопок/ссылок в фильтре 
+        (и в статичном, и в выпадающем варианте)
+     -------------------------------------------------- */
+  .filterContainer button,
+  .filterContainer a {
+    background-color: transparent;
+    border: 2px solid #888888;
+    color: #444444;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;           /* в выпадающем меню — вертикальные отступы */
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: background-color 0.25s ease,
+                color 0.25s ease,
+                border-color 0.25s ease;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    width: 100%;
+  }
+  
+  /* hover-эффект и активный пункт — одинаковый для статики и мобилки */
+  .filterContainer button:hover,
+  .filterContainer a:hover {
+    border-color: #000000;
+    color: #f0f0f0;
+    background-color: #0070f3;
+  }
+  
+  .filterContainer button.active,
+  .filterContainer a.active {
+    background-color: #0070f3;
+    color: #ffffff;
+    border-color: #0070f3;
+  }
+  
+  /* --------------------------------------------------
+     5) Основной контейнер (галерея) — светлый фон
+     -------------------------------------------------- */
+  .main {
+    background-color: #f0f0f0; /* Светлый фон */
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    min-height: calc(100vh - /* грубая высота headerTitle + отступ */ 8rem);
+  }
+  
+  /* --------------------------------------------------
+     6) Сетка фотографий (галерея)
+     -------------------------------------------------- */
+  .photoGrid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  @media (min-width: 640px) {
+    .photoGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .photoGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  /* --------------------------------------------------
+     7) Обёртка для каждой карточки
+     -------------------------------------------------- */
+  .cardWrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: #ffffff; /* Белый фон карточки */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .cardWrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Изображение внутри карточки — плавно масштабируется */
+  .cardWrapper :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .cardWrapper:hover :global(img) {
+    transform: scale(1.03);
+  }
+  
+  /* Если внутри PhotoCard есть оверлей с подписью (класс .photoOverlay) */
+  .cardWrapper :global(.photoOverlay) {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+  
+  /* --------------------------------------------------
+     8) Сообщения «Загрузка» и «Нет фотографий»
+     -------------------------------------------------- */
+  .loading,
+  .noPhotos {
+    text-align: center;
+    width: 100%;
+    padding: 2rem 1rem;
+    font-size: 1.25rem;
+    color: #555555; /* Тёмно-серый */
+    box-sizing: border-box;
+  }
+  

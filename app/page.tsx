@@ -1,83 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { createClient } from "@supabase/supabase-js"
-import CategoryFilter from "@/components/category-filter"
-import PhotoCard from "@/components/photo-card"
-import PhotoModal from "@/components/photo-modal"
-import styles from "./page.module.css"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+import CategoryFilter from "@/components/category-filter";
+import PhotoCard from "@/components/photo-card";
+import PhotoModal from "@/components/photo-modal";
+import styles from "./page.module.css";
 
-// Инициализация Supabase клиента
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-const supabase = createClient(supabaseUrl, supabaseKey)
+// === Инициализация Supabase ===
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Типы данных
+// Тип данных для одной фотографии
 interface Photo {
-  id: string
-  name: string
-  url: string
-  category: string
+  id: string;
+  name: string;
+  url: string;
+  category: string;
 }
 
 export default function Home() {
-  const [categories, setCategories] = useState<string[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
-  const [photos, setPhotos] = useState<Photo[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Получение списка категорий (buckets)
+  // Состояние для показа/скрытия «бургер-меню» на мобильных
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // === Загрузка списка категорий (бакетов) ===
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const { data, error } = await supabase.storage.listBuckets()
-
-        if (error) {
-          throw error
-        }
-
+        const { data, error } = await supabase.storage.listBuckets();
+        if (error) throw error;
         if (data) {
-          const bucketNames = data.map((bucket) => bucket.name)
-          setCategories(bucketNames)
+          setCategories(data.map((bucket) => bucket.name));
         }
-      } catch (error) {
-        console.error("Ошибка при получении категорий:", error)
+      } catch (err) {
+        console.error("Ошибка при получении категорий:", err);
       }
     }
+    fetchCategories();
+  }, []);
 
-    fetchCategories()
-  }, [])
-
-  // Получение фотографий из всех категорий или выбранной категории
+  // === Загрузка фотографий при изменении списка категорий/фильтра ===
   useEffect(() => {
     async function fetchPhotos() {
-      setLoading(true)
+      setLoading(true);
       try {
-        const allPhotos: Photo[] = []
+        const allPhotos: Photo[] = [];
+        const bucketsToFetch =
+          selectedCategory === "all" ? categories : [selectedCategory];
 
-        // Если выбрана категория "все", получаем фото из всех категорий
-        const bucketsToFetch = selectedCategory === "all" ? categories : [selectedCategory]
-
-        // Пропускаем, если нет категорий или если выбрана конкретная категория, которой нет в списке
-        if (bucketsToFetch.length === 0 || (selectedCategory !== "all" && !categories.includes(selectedCategory))) {
-          setPhotos([])
-          setLoading(false)
-          return
+        if (
+          bucketsToFetch.length === 0 ||
+          (selectedCategory !== "all" && !categories.includes(selectedCategory))
+        ) {
+          setPhotos([]);
+          setLoading(false);
+          return;
         }
 
-        // Получаем фото из каждой категории
         for (const bucket of bucketsToFetch) {
-          const { data, error } = await supabase.storage.from(bucket).list()
-
+          const { data, error } = await supabase.storage.from(bucket).list();
           if (error) {
-            console.error(`Ошибка при получении файлов из ${bucket}:`, error)
-            continue
+            console.error(`Ошибка при получении файлов из ${bucket}:`, error);
+            continue;
           }
-
           if (data) {
-            // Фильтруем только изображения
             const imageFiles = data.filter(
               (file) =>
                 !file.id.includes("/") &&
@@ -86,98 +81,166 @@ export default function Home() {
                   file.name.endsWith(".png") ||
                   file.name.endsWith(".gif") ||
                   file.name.endsWith(".svg") ||
-                  file.name.endsWith(".webp")),
-            )
+                  file.name.endsWith(".webp"))
+            );
 
-            // Создаем объекты фотографий
             const bucketPhotos = imageFiles.map((file) => {
-              const url = supabase.storage.from(bucket).getPublicUrl(file.name).data.publicUrl
+              const url = supabase.storage.from(bucket).getPublicUrl(file.name)
+                .data.publicUrl;
               return {
                 id: file.id,
-                name: file.name.split(".")[0], // Имя файла без расширения
+                name: file.name.split(".")[0],
                 url,
                 category: bucket,
-              }
-            })
-
-            allPhotos.push(...bucketPhotos)
+              };
+            });
+            allPhotos.push(...bucketPhotos);
           }
         }
 
-        setPhotos(allPhotos)
-      } catch (error) {
-        console.error("Ошибка при получении фотографий:", error)
+        setPhotos(allPhotos);
+      } catch (err) {
+        console.error("Ошибка при получении фотографий:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     if (categories.length > 0) {
-      fetchPhotos()
+      fetchPhotos();
     }
-  }, [categories, selectedCategory])
+  }, [categories, selectedCategory]);
 
-  // Обработчик изменения категории
+  // === Обработчики ===
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
-  }
+    setSelectedCategory(category);
+    setIsMenuOpen(false); // Закрываем мобильное меню после выбора
+  };
 
-  // Обработчик клика по фотографии
   const handlePhotoClick = (photo: Photo) => {
-    setSelectedPhoto(photo)
-    setIsModalOpen(true)
-  }
+    setSelectedPhoto(photo);
+    setIsModalOpen(true);
+  };
 
-  // Обработчик закрытия модального окна
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
-  // Обработчик скачивания фотографии
   const handleDownload = async (photo: Photo) => {
     try {
-      const response = await fetch(photo.url)
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${photo.name}.${blob.type.split("/")[1]}`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-    } catch (error) {
-      console.error("Ошибка при скачивании файла:", error)
+      const response = await fetch(photo.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${photo.name}.${blob.type.split("/")[1]}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Ошибка при скачивании файла:", err);
     }
-  }
+  };
+
+  // Открытие/закрытие мобильного меню при клике на бургер
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
+  // Закрываем меню при клике вне его области
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (
+        isMenuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    },
+    [isMenuOpen]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>Аванпост</h1>
+    <>
+      {/* =================================================
+          1) Шапка «АВАНПОСТ» + бургер (мобильный ≤ 640px)
+         ================================================= */}
+      <div className={styles.headerTitle}>
+        <h1>АВАНПОСТ</h1>
 
-      {/* Фильтр категорий */}
-      <CategoryFilter
-        categories={["all", ...categories]}
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
-      />
+        {/* Бургер-иконка: показывается только на мобилке */}
+        <div className={styles.burger} onClick={toggleMenu}>
+          ☰
+        </div>
 
-      {/* Сетка фотографий */}
-      <div className={styles.photoGrid}>
-        {loading ? (
-          <div className={styles.loading}>Загрузка фотографий...</div>
-        ) : photos.length > 0 ? (
-          photos.map((photo) => (
-            <PhotoCard key={photo.id} photo={photo} onPhotoClick={handlePhotoClick} onDownload={handleDownload} />
-          ))
-        ) : (
-          <div className={styles.noPhotos}>Фотографии не найдены</div>
+        {/* =================================================
+             2) Выпадающее меню (мобильный фильтр ≤ 640px)
+           ================================================= */}
+        {isMenuOpen && (
+          <div className={styles.menuDropdown} ref={menuRef}>
+            <div className={styles.filterContainer}>
+              <CategoryFilter
+                categories={["all", ...categories]}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
+              />
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Модальное окно для просмотра фотографии */}
-      <PhotoModal photo={selectedPhoto} isOpen={isModalOpen} onClose={handleCloseModal} onDownload={handleDownload} />
-    </main>
-  )
-}
+      {/* =================================================
+          3) Статичный фильтр (десктоп ≥ 640px)
+         ================================================= */}
 
+
+      {/* =================================================
+         4) Основной контент: галерея (фон #f0f0f0)
+         ================================================= */}
+         
+      <main className={styles.main}>
+      <div className={styles.desktopFilter}>
+        <CategoryFilter
+          categories={["all", ...categories]}
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+      </div>
+        <div className={styles.photoGrid}>
+          {loading ? (
+            <div className={styles.loading}>Загрузка фотографий...</div>
+          ) : photos.length > 0 ? (
+            photos.map((photo) => (
+              <div key={photo.id} className={styles.cardWrapper}>
+                <PhotoCard
+                  photo={photo}
+                  onPhotoClick={handlePhotoClick}
+                  onDownload={handleDownload}
+                />
+              </div>
+            ))
+          ) : (
+            <div className={styles.noPhotos}>Фотографии не найдены</div>
+          )}
+        </div>
+
+        {/* Модальное окно для увеличения/скачивания фото */}
+        <PhotoModal
+          photo={selectedPhoto}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onDownload={handleDownload}
+        />
+      </main>
+    </>
+  );
+}
