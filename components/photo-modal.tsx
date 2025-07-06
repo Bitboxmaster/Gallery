@@ -67,9 +67,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, isOpen, onClose, onDownl
         <div className={styles.modalHeader}>
           <h3 className={styles.modalTitle}>{photo.name}</h3>
           <div className={styles.modalActions}>
-            <button className={styles.actionButton} onClick={() => onDownload(photo)} aria-label="Скачать фото">
-              <Download size={24} />
-            </button>
+
             <button className={styles.closeButton} onClick={onClose} aria-label="Закрыть">
               <X size={24} />
             </button>

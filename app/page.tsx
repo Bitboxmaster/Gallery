@@ -1,18 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { createClient } from "@supabase/supabase-js";
 import CategoryFilter from "@/components/category-filter";
 import PhotoCard from "@/components/photo-card";
 import PhotoModal from "@/components/photo-modal";
 import styles from "./page.module.css";
 
-// === Инициализация Supabase ===
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Тип данных для одной фотографии
 interface Photo {
   id: string;
   name: string;
@@ -24,36 +17,32 @@ export default function Home() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-  // Состояние для показа/скрытия «бургер-меню» на мобильных
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // === Загрузка списка категорий (бакетов) ===
+  // Получаем список бакетов с сервера
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const { data, error } = await supabase.storage.listBuckets();
-        if (error) throw error;
-        if (data) {
-          setCategories(data.map((bucket) => bucket.name));
-        }
-      } catch (err) {
-        console.error("Ошибка при получении категорий:", err);
+        const res = await fetch("/api/list-buckets");
+        const data = await res.json();
+        // Используем только имена бакетов
+        setCategories((data.buckets || []).map((b: { Name: string }) => b.Name));
+      } catch (e) {
+        setCategories([]);
       }
     }
     fetchCategories();
   }, []);
 
-  // === Загрузка фотографий при изменении списка категорий/фильтра ===
+  // Загружаем фотографии при изменении выбранной категории или списка категорий
   useEffect(() => {
     async function fetchPhotos() {
       setLoading(true);
       try {
-        const allPhotos: Photo[] = [];
         const bucketsToFetch =
           selectedCategory === "all" ? categories : [selectedCategory];
 
@@ -66,41 +55,15 @@ export default function Home() {
           return;
         }
 
+        let allPhotos: Photo[] = [];
         for (const bucket of bucketsToFetch) {
-          const { data, error } = await supabase.storage.from(bucket).list();
-          if (error) {
-            console.error(`Ошибка при получении файлов из ${bucket}:`, error);
-            continue;
-          }
-          if (data) {
-            const imageFiles = data.filter(
-              (file) =>
-                !file.id.includes("/") &&
-                (file.name.endsWith(".jpg") ||
-                  file.name.endsWith(".jpeg") ||
-                  file.name.endsWith(".png") ||
-                  file.name.endsWith(".gif") ||
-                  file.name.endsWith(".svg") ||
-                  file.name.endsWith(".webp"))
-            );
-
-            const bucketPhotos = imageFiles.map((file) => {
-              const url = supabase.storage.from(bucket).getPublicUrl(file.name)
-                .data.publicUrl;
-              return {
-                id: file.id,
-                name: file.name.split(".")[0],
-                url,
-                category: bucket,
-              };
-            });
-            allPhotos.push(...bucketPhotos);
-          }
+          const res = await fetch(`/api/list-photos?bucket=${bucket}`);
+          const json = await res.json();
+          if (json.files) allPhotos.push(...json.files);
         }
-
         setPhotos(allPhotos);
       } catch (err) {
-        console.error("Ошибка при получении фотографий:", err);
+        setPhotos([]);
       } finally {
         setLoading(false);
       }
@@ -111,10 +74,9 @@ export default function Home() {
     }
   }, [categories, selectedCategory]);
 
-  // === Обработчики ===
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    setIsMenuOpen(false); // Закрываем мобильное меню после выбора
+    setIsMenuOpen(false);
   };
 
   const handlePhotoClick = (photo: Photo) => {
@@ -143,12 +105,10 @@ export default function Home() {
     }
   };
 
-  // Открытие/закрытие мобильного меню при клике на бургер
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
   };
 
-  // Закрываем меню при клике вне его области
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
       if (
@@ -171,26 +131,18 @@ export default function Home() {
 
   return (
     <>
-      {/* =================================================
-          1) Шапка «АВАНПОСТ» + бургер (мобильный ≤ 640px)
-         ================================================= */}
       <div className={styles.headerTitle}>
         <h1>АВАНПОСТ</h1>
-                     <div className={styles.desktopFilter}>
-        <CategoryFilter
-          categories={["all", ...categories]}
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryChange}
-        />
+        <div className={styles.desktopFilter}>
+          <CategoryFilter
+            categories={["all", ...categories]}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+          />
         </div>
-        {/* Бургер-иконка: показывается только на мобилке */}
         <div className={styles.burger} onClick={toggleMenu}>
           ☰
         </div>
-
-        {/* =================================================
-             2) Выпадающее меню (мобильный фильтр ≤ 640px)
-           ================================================= */}
         {isMenuOpen && (
           <div className={styles.menuDropdown} ref={menuRef}>
             <div className={styles.filterContainer}>
@@ -203,18 +155,7 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* =================================================
-          3) Статичный фильтр (десктоп ≥ 640px)
-         ================================================= */}
-
-
-      {/* =================================================
-         4) Основной контент: галерея (фон #f0f0f0)
-         ================================================= */}
-         
       <main className={styles.main}>
-
         <div className={styles.photoGrid}>
           {loading ? (
             <div className={styles.loading}>Загрузка фотографий...</div>
@@ -232,8 +173,6 @@ export default function Home() {
             <div className={styles.noPhotos}>Фотографии не найдены</div>
           )}
         </div>
-
-        {/* Модальное окно для увеличения/скачивания фото */}
         <PhotoModal
           photo={selectedPhoto}
           isOpen={isModalOpen}
