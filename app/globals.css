@@ -7,9 +7,10 @@
   --card-hover-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   --category-border: #d1d1d1;
   --category-active-bg: #ffffff;
-  --category-bg: #e5e5e5;
+  --category-bg: #f0f0f0;
   --category-hover-bg: #dadada;
 }
+
 
 * {
   box-sizing: border-box;
@@ -24,9 +25,13 @@ body {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background-color: rgb(var(--background-rgb));
+  background-color: #111111; /* почти чёрный фон страницы */
+  color: #ffffff;            /* основной текст – белый */
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
 }
+
 
 a {
   color: inherit;

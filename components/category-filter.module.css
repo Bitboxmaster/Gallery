@@ -2,37 +2,37 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 3rem;
+  margin-bottom: 0;
   width: 100%;
-  border-radius: 0.5rem;
   overflow: hidden;
   background-color: transparent; /* Убираем задний фон */
-  padding: 0.5rem;
   border: none; /* Убираем границу контейнера */
 }
 
 .filterButton {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  background-color: var(--category-bg);
-  border: 1px solid var(--category-border);
+  /* padding: 0.75rem 1.5rem; */
+  font-size: 1.2rem;
+  /* background-color: var(--category-bg);
+  border: 1px solid var(--category-border); */
   border-radius: 0.25rem;
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 1;
   text-align: center;
   min-width: 100px;
 }
-
+@media (min-width: 640px) {
 .filterButton:hover {
-  background-color: var(--category-hover-bg);
+  color: rgb(172, 72, 6);
 }
 
 .filterButton.active {
-  background-color: var(--category-active-bg);
-  font-weight: 600;
-  border-color: var(--primary-color);
+  color: rgb(235, 99, 8);
+
+}
 }
 
 @media (max-width: 640px) {

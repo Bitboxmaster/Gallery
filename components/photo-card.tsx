@@ -19,7 +19,7 @@ interface PhotoCardProps {
   onDownload: (photo: Photo) => void
 }
 
-const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onPhotoClick, onDownload }) => {
+const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onPhotoClick }) => {
   return (
     <div className={styles.card}>
       <div
@@ -47,9 +47,6 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onPhotoClick, onDownload }
           <h3 className={styles.photoTitle}>{photo.name}</h3>
           <p className={styles.photoCategory}>{translateCategory(photo.category)}</p>
         </div>
-        <button className={styles.downloadButton} onClick={() => onDownload(photo)} aria-label="Скачать фото">
-          <Download size={20} />
-        </button>
       </div>
     </div>
   )
