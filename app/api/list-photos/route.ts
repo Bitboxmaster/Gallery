@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 // Мапа: название бакета -> публичная ссылка
-// TODO: Заменить имена как в superbase
+
 const bucketPublicUrls: Record<string, string> = {
   "room": "https://f0a57fb1-3b64-43b2-bd47-85de037b07f1.selstorage.ru",
   "room2": "https://c38134a5-ecc4-45b9-8a61-442070e6acc3.selstorage.ru",

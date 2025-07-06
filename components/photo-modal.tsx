@@ -28,9 +28,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, isOpen, onClose, onDownl
   useEffect(() => {
     // Блокировка прокрутки страницы при открытом модальном окне
     if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "auto"
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
     }
 
     // Обработчик клавиши Escape для закрытия модального окна
