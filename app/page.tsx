@@ -176,7 +176,13 @@ export default function Home() {
          ================================================= */}
       <div className={styles.headerTitle}>
         <h1>АВАНПОСТ</h1>
-
+                     <div className={styles.desktopFilter}>
+        <CategoryFilter
+          categories={["all", ...categories]}
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+        </div>
         {/* Бургер-иконка: показывается только на мобилке */}
         <div className={styles.burger} onClick={toggleMenu}>
           ☰
@@ -208,13 +214,7 @@ export default function Home() {
          ================================================= */}
          
       <main className={styles.main}>
-      <div className={styles.desktopFilter}>
-        <CategoryFilter
-          categories={["all", ...categories]}
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryChange}
-        />
-      </div>
+
         <div className={styles.photoGrid}>
           {loading ? (
             <div className={styles.loading}>Загрузка фотографий...</div>

@@ -8,7 +8,7 @@
     background-color: #000000; /* Чёрный фон */
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 2rem 1rem;       /* Отступы вокруг текста */
     box-sizing: border-box;
     position: relative;       /* Чтобы позиционировать выпадающее меню */
@@ -31,7 +31,7 @@
   /* Иконка бургер-меню (появляется только на мобилке) */
   .burger {
     display: none;           /* скрываем на десктопе */
-    font-size: 1.75rem;
+    font-size:  2.25rem;
     color: #ffffff;
     cursor: pointer;
     user-select: none;
@@ -41,7 +41,7 @@
   
   @media (max-width: 640px) {
     .burger {
-      display: block;        /* показываем только на мобилке */
+      display: block;       /* показываем только на мобилке */
     }
   }
   
@@ -56,7 +56,7 @@
     .desktopFilter {
       display: flex;         /* появляется на десктопе */
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-left: 1.5rem;
       flex-wrap: wrap;
     }
   }
@@ -117,7 +117,7 @@
   .filterContainer a {
     background-color: transparent;
     border: 2px solid #888888;
-    color: #444444;
+    color: white;
     padding: 0.5rem 1rem;
     margin: 0.5rem 0;           /* в выпадающем меню — вертикальные отступы */
     font-size: 0.95rem;
@@ -136,14 +136,12 @@
   .filterContainer a:hover {
     border-color: #000000;
     color: #f0f0f0;
-    background-color: #0070f3;
+    background-color: rgb(172, 72, 6);
   }
   
   .filterContainer button.active,
   .filterContainer a.active {
-    background-color: #0070f3;
     color: #ffffff;
-    border-color: #0070f3;
   }
   
   /* --------------------------------------------------
