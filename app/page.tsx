@@ -146,13 +146,7 @@ export default function Home() {
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
           />
-          {/* <div className={styles.contacts}>
-            <div>8 800 101 57-96</div>
-            <div>+7 (3952) 96-07-96</div>
-            <div>Пн.–Сб. 9:00–21:00</div>
-
-
-          </div> */}
+          
         </div>
         <div className={styles.burger} onClick={toggleMenu}>
           ☰
