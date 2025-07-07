@@ -24,10 +24,10 @@ const categoryDictionary: Record<string, string> = {
   houses : "Малоэтажные дома" ,
   bath : "Ванны" ,
   towers : "Башни" , 
-  "room" : "пууп" , 
-  "room2" : "пупу" , 
-  "room3" : "пипи" , 
-  "room4" : "фыв" , 
+  "room" : "Дома" , 
+  "room2" : "Ограждения" , 
+  "room3" : "Ремонт" , 
+  "room4" : "Другое" , 
 
 
 

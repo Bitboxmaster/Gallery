@@ -11,17 +11,22 @@
     justify-content: center;
     padding: 2rem 1rem;       /* Отступы вокруг текста */
     box-sizing: border-box;
-    position: relative;       /* Чтобы позиционировать выпадающее меню */
+    position: relative;  
+
   }
   
   .headerTitle h1 {
     margin: 0;
+    letter-spacing: 0.25rem;
+    transition: all 0.2s ease;
     color: #ffffff;            /* Белый текст */
     font-family: 'Roboto', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    font-weight: 550;
   }
-  
+    .headerTitle h1:hover {
+    color: rgb(172, 72, 6);            /* Белый текст */
+    }
   @media (max-width: 640px) {
     .headerTitle h1 {
       font-size: 2.25rem;
@@ -56,9 +61,19 @@
     .desktopFilter {
       display: flex;         /* появляется на десктопе */
       justify-content: center;
-      margin-left: 1.5rem;
       flex-wrap: wrap;
     }
+       .headerTitle {
+          width: 100%;
+          background-color: #000000; /* Чёрный фон */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem 1rem;       /* Отступы вокруг текста */
+          box-sizing: border-box;
+          position: relative;  
+          gap :4rem;      /* Чтобы позиционировать выпадающее меню */
+        }
   }
   
   /* --------------------------------------------------
