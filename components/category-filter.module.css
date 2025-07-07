@@ -3,8 +3,9 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 3rem;
+  gap: 2rem;
   margin-bottom: 0;
+  margin-right: 17rem;
   width: 100%;
   overflow: hidden;
   background-color: transparent; /* Убираем задний фон */

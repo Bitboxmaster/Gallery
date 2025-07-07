@@ -5,6 +5,9 @@ import CategoryFilter from "@/components/category-filter";
 import PhotoCard from "@/components/photo-card";
 import PhotoModal from "@/components/photo-modal";
 import styles from "./page.module.css";
+import Link from 'next/link';
+import Head from 'next/head'
+
 
 interface Photo {
   id: string;
@@ -131,14 +134,25 @@ export default function Home() {
 
   return (
     <>
+            <Head>
+        <link rel="icon" href="/favicon.ico" />
+        {/* Или .png или .svg, если используете другой формат */}
+      </Head>
       <div className={styles.headerTitle}>
-        <h1>АВАНПОСТ</h1>
+        <h1><Link href="https://avanpost.su/" target="_blank" rel="noopener noreferrer" className={styles.H1}>АВАНПОСТ</Link></h1>
         <div className={styles.desktopFilter}>
           <CategoryFilter
             categories={["all", ...categories]}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
           />
+          {/* <div className={styles.contacts}>
+            <div>8 800 101 57-96</div>
+            <div>+7 (3952) 96-07-96</div>
+            <div>Пн.–Сб. 9:00–21:00</div>
+
+
+          </div> */}
         </div>
         <div className={styles.burger} onClick={toggleMenu}>
           ☰
