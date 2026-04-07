@@ -24,6 +24,13 @@ const categoryDictionary: Record<string, string> = {
   houses : "Малоэтажные дома" ,
   bath : "Ванны" ,
   towers : "Башни" , 
+  "room" : "Дома" , 
+  "room2" : "Ограждения" , 
+  "room3" : "Ремонт" , 
+  "room4" : "Другое" , 
+
+
+
 }
 
 /**
